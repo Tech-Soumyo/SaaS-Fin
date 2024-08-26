@@ -1,8 +1,9 @@
 "use client";
 
 import { EditAccountSheet } from "@/components/custom/edit-account-sheet";
+import { EditCategorySheet } from "@/components/custom/edit-category-sheet";
 import { NewAccountSheet } from "@/components/custom/new-account-sheet";
-import { useEffect, useState } from "react";
+import { NewCategorySheet } from "@/components/custom/new-category-sheet";
 import { useMountedState } from "react-use";
 
 export const SheetProvider = () => {
@@ -20,6 +21,9 @@ export const SheetProvider = () => {
     <>
       <EditAccountSheet />
       <NewAccountSheet />
+
+      <EditCategorySheet />
+      <NewCategorySheet />
     </>
   );
 };
