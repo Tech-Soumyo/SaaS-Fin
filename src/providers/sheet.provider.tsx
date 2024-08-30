@@ -4,6 +4,7 @@ import { EditAccountSheet } from "@/components/custom/edit-account-sheet";
 import { EditCategorySheet } from "@/components/custom/edit-category-sheet";
 import { NewAccountSheet } from "@/components/custom/new-account-sheet";
 import { NewCategorySheet } from "@/components/custom/new-category-sheet";
+import { NewTransactionSheet } from "@/components/custom/new-transaction-sheet";
 import { useMountedState } from "react-use";
 
 export const SheetProvider = () => {
@@ -24,6 +25,8 @@ export const SheetProvider = () => {
 
       <EditCategorySheet />
       <NewCategorySheet />
+
+      <NewTransactionSheet />
     </>
   );
 };
