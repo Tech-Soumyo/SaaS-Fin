@@ -16,14 +16,6 @@ const app = new Hono()
     // Check if user is authenticated
     if (!auth?.userId) {
       return c.json({ error: "Unauthorized" }, 401);
-      // throw new HTTPException(401, {
-      //   res: c.json(
-      //     {
-      //       error: "Unauthorize",
-      //     },
-      //     401
-      //   ),
-      // });
     }
 
     try {
