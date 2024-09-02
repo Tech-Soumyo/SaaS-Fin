@@ -9,14 +9,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useNewAccount } from "../../../hooks/features/accounts/use-new-account";
+
 import { Loader2, Plus } from "lucide-react";
-import { columns } from "@/app/(dashboard)/accounts/columns";
+import { columns } from "@/app/(dashboard)/transactions/columns";
 import { DataTable } from "@/components/ui/data-table";
-import { useGetAccounts } from "@/hooks/features/accounts/use-get-accounts.hook";
+
 import { Skeleton } from "@/components/ui/skeleton";
-import { useBulkDeleteAccounts } from "@/hooks/features/accounts/use-bulk-delete-accounts";
+
+import { useNewCategory } from "@/hooks/features/categories/use-new-categories";
+import { useGetCategories } from "@/hooks/features/categories/use-get-categories.hook";
+import { useBulkDeleteCategories } from "@/hooks/features/categories/use-bulk-delete-categories";
 import { useNewTransaction } from "@/hooks/features/transactions/use-new-transaction";
+import { useGetTransaction } from "@/hooks/features/transactions/use-get-transaction";
+import { useGetTransactions } from "@/hooks/features/transactions/use-get-transactions.hook";
+import { useBulkDeleteTransactions } from "@/hooks/features/transactions/use-bulk-delete-transactions";
+import { transactions } from "@/db/schema";
 
 // export default function AccountPage() {
 //   return (
@@ -41,15 +48,16 @@ import { useNewTransaction } from "@/hooks/features/transactions/use-new-transac
 //   },
 // ];
 
-const TransactonsPage = () => {
+const TransactionsPage = () => {
   const newTransaction = useNewTransaction();
-  const accountsQuery = useGetAccounts();
-  const accounts = accountsQuery.data || [];
+  const transactionsQuery = useGetTransactions();
+  const transaction = transactionsQuery.data || [];
 
-  const deleteAccounts = useBulkDeleteAccounts();
-  const isDisabled = accountsQuery.isLoading || deleteAccounts.isPending;
+  const deleteTransactions = useBulkDeleteTransactions();
+  const isDisabled =
+    transactionsQuery.isLoading || deleteTransactions.isPending;
 
-  if (accountsQuery.isLoading) {
+  if (transactionsQuery.isLoading) {
     return (
       <>
         <div className="max-w-screen-2xl mx-auto w-full pb-10 -mt-24">
@@ -73,21 +81,23 @@ const TransactonsPage = () => {
       <Card className="border-none drop-shadow-sm">
         <CardHeader className="gap-y-2 lg:flex-row lg:items-center lg:justify-between">
           <CardTitle className="text-xl line-clamp-1 md:justify-center">
-            Transaction History
+            Transaction Page
           </CardTitle>
           <Button onClick={newTransaction.onOpen} size="sm">
             <Plus className="size-4 mr-2" />
-            Add New
+            Add Transaction
           </Button>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={columns}
-            data={accounts}
+            data={transaction}
             filterKey="name"
             onDelete={(row) => {
-              const ids = row.map((r) => r.original.id);
-              deleteAccounts.mutate({ ids });
+              const ids = row
+                .map((r) => r.original.id)
+                .filter((id): id is string => id !== null);
+              deleteTransactions.mutate({ ids });
             }}
             disabled={isDisabled}
           />
@@ -97,4 +107,4 @@ const TransactonsPage = () => {
   );
 };
 
-export default TransactonsPage;
+export default TransactionsPage;
