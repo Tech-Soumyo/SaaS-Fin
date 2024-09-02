@@ -6,20 +6,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import { ArrowUpDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
-import Actions from "./actions";
-
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-
-// export type Payment = {
-//   id: string;
-//   amount: number;
-//   status: "pending" | "processing" | "success" | "failed";
-//   email: string;
-// };
+import Actions from "@/app/(dashboard)/transactions/actions";
+import { format } from "date-fns";
+import { formatCurrency } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { AccountColumn } from "./account-column";
+import { CategoryColumn } from "./category-column";
 
 export type ResponseType = InferResponseType<
-  typeof client.api.accounts.$get,
+  typeof client.api.transactions.$get,
   200
 >["data"][0];
 
@@ -49,22 +44,130 @@ export const columns: ColumnDef<ResponseType>[] = [
   },
   {
     // Email column with sorting functionality
-    accessorKey: "name",
+    accessorKey: "date",
     header: ({ column }) => {
       return (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name
+          Date
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const date = row.getValue("date") as Date;
+
+      return <span>{format(date, "dd MMMM, yy")}</span>;
+    },
+  },
+  {
+    // Email column with sorting functionality
+    accessorKey: "category",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Category
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      // const data = row.original.category;
+      const id = row.original.id ?? "default-id";
+      return (
+        <CategoryColumn
+          id={id}
+          category={row.original.category}
+          categoryId={row.original.categoryId}
+        />
+      );
+    },
+  },
+  {
+    // Email column with sorting functionality
+    accessorKey: "payee",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Payee
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    // cell: ({ row }) => {
+    //   const data = row.original.payee;
+    //   return <div>{data}</div>;
+    // },
+  },
+  {
+    // Email column with sorting functionality
+    accessorKey: "amount",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Amount
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      const data = parseFloat(row.getValue("amount"));
+
+      return (
+        <Badge
+          variant={data < 0 ? "destructive" : "primary"}
+          className="text-xs font-medium px-3.5 py-2.5"
+        >
+          {formatCurrency(data)}
+        </Badge>
+      );
+    },
+  },
+  {
+    // Email column with sorting functionality
+    accessorKey: "account",
+    header: ({ column }) => {
+      return (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Account
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      );
+    },
+    cell: ({ row }) => {
+      // const data = row.original.account;
+
+      return (
+        <AccountColumn
+          account={row.original.account}
+          accountId={row.original.accountId}
+        />
       );
     },
   },
   {
     id: "actions",
     accessorKey: "Actions",
-    cell: ({ row }) => <Actions id={row.original.id} />,
+    cell: ({ row }) => {
+      const id = row.original.id;
+      if (id === null) {
+        return <span>No ID</span>; // Handle null case or render nothing
+      }
+      return <Actions id={id} />;
+    },
   },
 ];
