@@ -1,5 +1,5 @@
-import { relations } from "drizzle-orm";
-import { integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
+import { integer, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -18,19 +18,23 @@ export const categories = pgTable("categories", {
 });
 
 export const transactions = pgTable("transactions", {
-  id: text("id"),
+  id: text("id")
+    .default(sql`gen_random_uuid()`)
+    .primaryKey(),
   amount: integer("amount").notNull(),
   payee: text("payee").notNull(),
   notes: text("notes"),
   date: timestamp("date", { mode: "date" }).notNull(),
-  accountsId: text("accounts_id")
+  accountId: text("account_id")
     .references(() => accounts.id, {
       onDelete: "cascade",
     })
     .notNull(),
-  categoriesId: text("categories_id").references(() => categories.id, {
+  categoryId: text("category_id").references(() => categories.id, {
     onDelete: "set null",
   }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").default(sql`current_timestamp`),
 });
 
 export const accountsRelations = relations(accounts, ({ many }) => ({
@@ -42,12 +46,12 @@ export const categoriesRelations = relations(categories, ({ many }) => ({
 }));
 
 export const transactionsRelations = relations(transactions, ({ one }) => ({
-  accounts: one(accounts, {
-    fields: [transactions.accountsId],
+  account: one(accounts, {
+    fields: [transactions.accountId],
     references: [accounts.id],
   }),
-  categories: one(categories, {
-    fields: [transactions.categoriesId],
+  category: one(categories, {
+    fields: [transactions.categoryId],
     references: [categories.id],
   }),
 }));
@@ -56,4 +60,6 @@ export const insertAccountsSchema = createInsertSchema(accounts);
 export const insertCategoriesSchema = createInsertSchema(categories);
 export const insertTransactionSchema = createInsertSchema(transactions, {
   date: z.coerce.date(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
 });
