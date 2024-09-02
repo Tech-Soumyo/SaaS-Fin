@@ -1,14 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { Loader2, Plus } from "lucide-react";
 import { columns } from "@/app/(dashboard)/transactions/columns";
@@ -16,14 +9,10 @@ import { DataTable } from "@/components/ui/data-table";
 
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { useNewCategory } from "@/hooks/features/categories/use-new-categories";
-import { useGetCategories } from "@/hooks/features/categories/use-get-categories.hook";
-import { useBulkDeleteCategories } from "@/hooks/features/categories/use-bulk-delete-categories";
 import { useNewTransaction } from "@/hooks/features/transactions/use-new-transaction";
-import { useGetTransaction } from "@/hooks/features/transactions/use-get-transaction";
+
 import { useGetTransactions } from "@/hooks/features/transactions/use-get-transactions.hook";
 import { useBulkDeleteTransactions } from "@/hooks/features/transactions/use-bulk-delete-transactions";
-import { transactions } from "@/db/schema";
 
 // export default function AccountPage() {
 //   return (
@@ -81,7 +70,7 @@ const TransactionsPage = () => {
       <Card className="border-none drop-shadow-sm">
         <CardHeader className="gap-y-2 lg:flex-row lg:items-center lg:justify-between">
           <CardTitle className="text-xl line-clamp-1 md:justify-center">
-            Transaction Page
+            Transaction History
           </CardTitle>
           <Button onClick={newTransaction.onOpen} size="sm">
             <Plus className="size-4 mr-2" />
@@ -92,7 +81,7 @@ const TransactionsPage = () => {
           <DataTable
             columns={columns}
             data={transaction}
-            filterKey="name"
+            filterKey="payee"
             onDelete={(row) => {
               const ids = row
                 .map((r) => r.original.id)
