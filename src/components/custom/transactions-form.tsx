@@ -1,37 +1,38 @@
-import { insertAccountsSchema, insertTransactionSchema } from "@/db/schema";
-import { useForm } from "react-hook-form";
+import React from "react";
 import { z } from "zod";
+import { Loader2, Trash } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+import { Select } from "./select";
+import { DatePicker } from "./date-picker";
+import { AmountInput } from "./amount-input";
+import { convertamountToMiliUnits } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { insertTransactionSchema } from "@/db/schema";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Trash } from "lucide-react";
-import { Select } from "./select";
-import { DatePicker } from "./date-picker";
-import { Textarea } from "../ui/textarea";
-import { AmountInput } from "./amount-input";
-import { convertamountToMiliUnits } from "@/lib/utils";
 
 const formSchema = z.object({
   date: z.coerce.date(),
   accountId: z.string(),
-  amount: z.string(),
+  categoryId: z.string().nullable().optional(),
   payee: z.string(),
+  amount: z.string(),
   notes: z.string().nullable().optional(),
-  categoriesId: z.string().nullable().optional(),
 });
 
 const apiSchema = insertTransactionSchema.omit({
   id: true,
+  // createdAt: true,
+  // updatedAt: true,
 });
 
 type FormValues = z.input<typeof formSchema>;
@@ -57,12 +58,12 @@ export const TransactionForm = ({
   disabled,
   accountOptions,
   categoryOptions,
-  onCreateAccount,
   onCreateCategory,
+  onCreateAccount,
 }: Props) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues,
+    defaultValues,
   });
 
   const handleSubmit = (values: FormValues) => {
@@ -73,8 +74,8 @@ export const TransactionForm = ({
       ...values,
       amount: amountInMiliunits,
       notes: values.notes || null,
-      categoriesId: values.categoriesId || null,
-      accountsId: values.accountId,
+      categoryId: values.categoryId || null,
+      accountId: values.accountId,
     };
 
     onSubmit(apiValues);
@@ -83,142 +84,138 @@ export const TransactionForm = ({
   const handleDelete = () => {
     onDelete?.();
   };
-
   return (
-    <>
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(handleSubmit)}
-          className="space-y-4 pt-4"
-        >
-          <FormField
-            control={form.control}
-            name="date"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <DatePicker
-                    value={field.value}
-                    onChange={field.onChange}
-                    disabled={field.disabled}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="accountId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Account</FormLabel>
-                <FormControl>
-                  <Select
-                    placeholder="Seect An Account"
-                    options={accountOptions}
-                    onCreate={onCreateAccount}
-                    value={field.value}
-                    onChange={field.onChange}
-                    disabled={disabled}
-                  />
-                </FormControl>
-                <FormDescription>
-                  This is your public Account display name.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="categoriesId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <FormControl>
-                  <Select
-                    placeholder="Seect An Category"
-                    options={categoryOptions}
-                    onCreate={onCreateCategory}
-                    value={field.value}
-                    onChange={field.onChange}
-                    disabled={disabled}
-                  />
-                </FormControl>
-                <FormDescription>
-                  This is your public Category display name.
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="payee"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Payee</FormLabel>
-                <FormControl>
-                  <Input
-                    disabled={disabled}
-                    placeholder="Add a payee"
-                    {...field}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="amount"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Amount</FormLabel>
-                <FormControl>
-                  <AmountInput
-                    {...field}
-                    // value={field.value ?? ""}
-                    disabled={disabled}
-                    placeholder="0.00"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="notes"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Notes</FormLabel>
-                <FormControl>
-                  <Textarea
-                    {...field}
-                    value={field.value ?? ""}
-                    disabled={disabled}
-                    placeholder="Optional Notes"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <Button className="w-full" disabled={disabled}>
-            {id ? "Save changes" : "Create account"}
-          </Button>
-          {!!id && (
-            <Button
-              type="button"
-              disabled={disabled}
-              onClick={handleDelete}
-              className="w-full"
-              variant="outline"
-            >
-              <Trash className="size-4 mr-2" />
-              Delete account
-            </Button>
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(handleSubmit)}
+        className="space-y-4 pt-4"
+      >
+        {/* Date */}
+        <FormField
+          name="date"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Date</FormLabel>
+              <FormControl>
+                <DatePicker value={field.value} onChange={field.onChange} />
+              </FormControl>
+            </FormItem>
           )}
-        </form>
-      </Form>
-    </>
+        />
+        {/* Account */}
+        <FormField
+          name="accountId"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Account</FormLabel>
+              <FormControl>
+                <Select
+                  placeholder="Select an account"
+                  options={accountOptions}
+                  onCreate={onCreateAccount}
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={disabled}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        {/* Category */}
+        <FormField
+          name="categoryId"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Category</FormLabel>
+              <FormControl>
+                <Select
+                  placeholder="Select an category"
+                  options={categoryOptions}
+                  onCreate={onCreateCategory}
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={disabled}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        {/* Payee input */}
+        <FormField
+          name="payee"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Payee</FormLabel>
+              <FormControl>
+                <Input
+                  disabled={disabled}
+                  placeholder="Add a payee"
+                  {...field}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        {/* Amount input */}
+        <FormField
+          name="amount"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount</FormLabel>
+              <FormControl>
+                <AmountInput
+                  {...field}
+                  disabled={disabled}
+                  placeholder="0.00"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        {/* Notes textarea */}
+        <FormField
+          name="notes"
+          control={form.control}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Notes</FormLabel>
+              <FormControl>
+                <Textarea
+                  {...field}
+                  value={field.value ?? ""}
+                  disabled={disabled}
+                  placeholder="Optional notes"
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+        {/*  Submit/ Save Changes */}
+        <Button className="w-full" disabled={disabled}>
+          {disabled && (
+            <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />
+          )}
+          {id ? "Save Changes" : "Create Transaction"}
+        </Button>
+
+        {!!id && (
+          <Button
+            type="button"
+            disabled={disabled}
+            onClick={handleDelete}
+            variant="outline"
+            className="w-full"
+          >
+            <Trash className="mr-2 size-4" />
+            Delete Transaction
+          </Button>
+        )}
+      </form>
+    </Form>
   );
 };
