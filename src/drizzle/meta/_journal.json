@@ -8,6 +8,20 @@
       "when": 1724913581221,
       "tag": "0000_lame_arclight",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1725278886795,
+      "tag": "0001_furry_annihilus",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1725280073703,
+      "tag": "0002_youthful_silhouette",
+      "breakpoints": true
     }
   ]
 }
