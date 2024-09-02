@@ -2,6 +2,7 @@
 
 import { EditAccountSheet } from "@/components/custom/edit-account-sheet";
 import { EditCategorySheet } from "@/components/custom/edit-category-sheet";
+import { EditTransactionSheet } from "@/components/custom/edit-transaction-sheet";
 import { NewAccountSheet } from "@/components/custom/new-account-sheet";
 import { NewCategorySheet } from "@/components/custom/new-category-sheet";
 import { NewTransactionSheet } from "@/components/custom/new-transaction-sheet";
@@ -26,6 +27,7 @@ export const SheetProvider = () => {
       <EditCategorySheet />
       <NewCategorySheet />
 
+      <EditTransactionSheet />
       <NewTransactionSheet />
     </>
   );
