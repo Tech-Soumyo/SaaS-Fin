@@ -1,38 +1,34 @@
-"use client";
-
-import { Button } from "@/components/ui/button";
+import React from "react";
+import { useOpenAccount } from "@/hooks/use-open-account";
+import { useDeleteAccount } from "@/hooks/features/accounts/use-delete-account";
+import useConfirm from "@/hooks/use-confirm";
 import {
   DropdownMenu,
-  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDeleteTransaction } from "@/hooks/features/transactions/use-delete-transaction";
-import useConfirm from "@/hooks/use-confirm";
-import { useOpenTransaction } from "@/hooks/use-open-transaction";
-import { Edit2, MoreHorizontal, Trash2 } from "lucide-react";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   id: string;
 };
 
-function Actions({ id }: Props) {
-  const { onOpen } = useOpenTransaction();
-  const deleteMutation = useDeleteTransaction(id);
-
+const Actions = ({ id }: Props) => {
   const [ConfirmDialog, confirm] = useConfirm(
-    "Are you sure? You want to delete this transaction ?",
-    "You are about to delete this transaction."
+    "Are you sure?",
+    "You are about to delete this account."
   );
-
+  const deleteMutation = useDeleteAccount(id);
+  const isDisabled = deleteMutation.isPending;
+  const { onOpen } = useOpenAccount();
   const handleDelete = async () => {
     const ok = await confirm();
     if (ok) {
       deleteMutation.mutate();
     }
   };
-
   return (
     <>
       <ConfirmDialog />
@@ -42,19 +38,25 @@ function Actions({ id }: Props) {
             <MoreHorizontal className="size-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          <DropdownMenuItem disabled={false} onClick={() => onOpen(id)}>
-            <Edit2 className="size-5 mr-2" />
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem
+            disabled={isDisabled}
+            onClick={() => {
+              onOpen(id);
+            }}
+          >
+            <Edit className="mr-2 size-4" />
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem disabled={false} onClick={() => handleDelete()}>
-            <Trash2 className="size-5 mr-2" />
+
+          <DropdownMenuItem disabled={isDisabled} onClick={handleDelete}>
+            <Trash className="mr-2 size-4" />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
   );
-}
+};
 
 export default Actions;
