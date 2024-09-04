@@ -190,6 +190,40 @@ const app = new Hono()
       return c.json({ data });
     }
   )
+  // .post(
+  //   "/bulk-create",
+  //   clerkMiddleware(),
+  //   zValidator(
+  //     "json",
+  //     z.array(
+  //       insertTransactionSchema.omit({
+  //         id: true,
+  //         // createdAt: true,
+  //         // updatedAt: true,
+  //       })
+  //     )
+  //   ),
+  //   async (c) => {
+  //     const auth = getAuth(c);
+  //     const values = c.req.valid("json");
+
+  //     if (!auth?.userId) {
+  //       return c.json({ error: "Unauthorized" }, 401);
+  //     }
+
+  //     const data = await db
+  //       .insert(transactions)
+  //       .values(
+  //         values.map((value) => ({
+  //           id: createId(),
+  //           ...value,
+  //         }))
+  //       )
+  //       .returning();
+
+  //     return c.json({ data });
+  //   }
+  // )
   .post(
     "/bulk-create",
     clerkMiddleware(),
@@ -198,8 +232,8 @@ const app = new Hono()
       z.array(
         insertTransactionSchema.omit({
           id: true,
-          createdAt: true,
-          updatedAt: true,
+          // createdAt: true,
+          // updatedAt: true,
         })
       )
     ),
@@ -207,21 +241,34 @@ const app = new Hono()
       const auth = getAuth(c);
       const values = c.req.valid("json");
 
+      // Check if the user is authenticated
       if (!auth?.userId) {
         return c.json({ error: "Unauthorized" }, 401);
       }
 
-      const data = await db
-        .insert(transactions)
-        .values(
-          values.map((value) => ({
-            id: createId(),
-            ...value,
-          }))
-        )
-        .returning();
+      // Check if values are provided
+      if (!values || values.length === 0) {
+        return c.json({ error: "No data provided" }, 400);
+      }
 
-      return c.json({ data });
+      try {
+        // Insert data into the transactions table
+        const data = await db
+          .insert(transactions)
+          .values(
+            values.map((value) => ({
+              id: createId(),
+              ...value,
+            }))
+          )
+          .returning(); // You might specify columns here, e.g., .returning(['id', 'name'])
+
+        // Return inserted data
+        return c.json({ data });
+      } catch (error) {
+        console.error("Error inserting data:", error);
+        return c.json({ error: "Failed to insert data" }, 500);
+      }
     }
   )
   .patch(
