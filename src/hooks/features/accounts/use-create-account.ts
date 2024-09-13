@@ -7,7 +7,7 @@ import { client } from "@/lib/hono-RPC";
 type ResponseType = InferResponseType<typeof client.api.accounts.$post>;
 type RequestType = InferRequestType<typeof client.api.accounts.$post>["json"];
 
-export const  useCreateAccount = () => {
+export const useCreateAccount = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation<ResponseType, Error, RequestType>({
@@ -18,6 +18,7 @@ export const  useCreateAccount = () => {
     onSuccess: () => {
       toast.success("Account created");
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["summary"] });
     },
     onError: () => {
       toast.error("Failed to create account");
